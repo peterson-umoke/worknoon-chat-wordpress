@@ -1,0 +1,203 @@
+#worknoon-chat-widget {
+    position: fixed;
+    z-index: 999999;
+}
+
+#worknoon-chat-widget[data-position="bottom-right"] {
+    bottom: 24px;
+    right: 24px;
+}
+
+#worknoon-chat-widget[data-position="bottom-left"] {
+    bottom: 24px;
+    left: 24px;
+}
+
+.worknoon-chat-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #6366f1;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.worknoon-chat-trigger:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+.worknoon-chat-panel {
+    position: fixed;
+    bottom: 96px;
+    right: 24px;
+    width: 360px;
+    max-height: 500px;
+    flex-direction: column;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (max-width: 480px) {
+    .worknoon-chat-panel {
+        width: calc(100vw - 32px);
+        right: 16px;
+        bottom: 88px;
+        max-height: 70vh;
+    }
+}
+
+.worknoon-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #6366f1;
+    color: #fff;
+}
+
+.worknoon-chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#worknoon-chat-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+#worknoon-chat-close:hover {
+    opacity: 1;
+}
+
+.worknoon-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 250px;
+    max-height: 350px;
+    background: #f8f9fa;
+}
+
+.worknoon-message {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.worknoon-message-own {
+    align-self: flex-end;
+    background: #6366f1;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.worknoon-message-other {
+    align-self: flex-start;
+    background: #fff;
+    color: #1a1a2e;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.worknoon-message-sender {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+
+.worknoon-message-content {
+    word-break: break-word;
+}
+
+.worknoon-message-content a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.worknoon-message-own .worknoon-message-content a {
+    color: #fff;
+}
+
+.worknoon-message-time {
+    font-size: 10px;
+    opacity: 0.5;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.worknoon-typing {
+    align-self: flex-start;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.worknoon-chat-input-area {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+#worknoon-chat-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#worknoon-chat-input:focus {
+    border-color: #6366f1;
+}
+
+#worknoon-chat-send {
+    height: 40px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 20px;
+    background: #6366f1;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#worknoon-chat-send:hover {
+    background: #4f46e5;
+}
+
+#worknoon-chat-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
