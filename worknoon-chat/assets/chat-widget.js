@@ -61,7 +61,10 @@
         var xhr = new XMLHttpRequest();
         xhr.open('POST', restUrl + '/session', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('X-WP-Nonce', config.nonce || '');
+        var nonce = config.nonce || (window.wpApiSettings && window.wpApiSettings.nonce) || '';
+        if (nonce) {
+            xhr.setRequestHeader('X-WP-Nonce', nonce);
+        }
         xhr.onload = function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 var data = JSON.parse(xhr.responseText);
