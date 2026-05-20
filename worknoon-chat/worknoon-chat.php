@@ -15,6 +15,7 @@ define('WORKNOON_CHAT_VERSION', '1.0.0');
 define('WORKNOON_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WORKNOON_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WORKNOON_CHAT_BACKEND_URL', get_option('worknoon_backend_url', 'http://localhost:3001'));
+define('WORKNOON_CHAT_SYNC_SECRET', get_option('worknoon_sync_secret', 'worknoon-wordpress-dev-secret'));
 
 require_once WORKNOON_CHAT_PLUGIN_DIR . 'includes/class-chat-cpt.php';
 require_once WORKNOON_CHAT_PLUGIN_DIR . 'includes/class-chat-api.php';
@@ -35,6 +36,7 @@ $worknoon_chat_shortcode->register();
 
 register_activation_hook(__FILE__, function () {
     add_option('worknoon_backend_url', 'http://localhost:3001');
+    add_option('worknoon_sync_secret', 'worknoon-wordpress-dev-secret');
     flush_rewrite_rules();
 });
 
@@ -55,10 +57,12 @@ add_action('admin_menu', function () {
 function worknoon_chat_settings_page() {
     if (isset($_POST['worknoon_backend_url']) && check_admin_referer('worknoon_chat_settings')) {
         update_option('worknoon_backend_url', esc_url_raw(wp_unslash($_POST['worknoon_backend_url'])));
+        update_option('worknoon_sync_secret', sanitize_text_field(wp_unslash($_POST['worknoon_sync_secret'] ?? '')));
         echo '<div class="notice notice-success is-dismissible"><p>Settings saved.</p></div>';
     }
 
     $backend_url = get_option('worknoon_backend_url', 'http://localhost:3001');
+    $sync_secret = get_option('worknoon_sync_secret', 'worknoon-wordpress-dev-secret');
     ?>
     <div class="wrap">
         <h1>Worknoon Chat Settings</h1>
@@ -72,6 +76,15 @@ function worknoon_chat_settings_page() {
                                value="<?php echo esc_attr($backend_url); ?>"
                                class="regular-text" placeholder="http://localhost:3001" />
                         <p class="description">URL of your Node.js/Socket.IO backend server.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="sync_secret">Sync Secret</label></th>
+                    <td>
+                        <input type="password" id="sync_secret" name="worknoon_sync_secret"
+                               value="<?php echo esc_attr($sync_secret); ?>"
+                               class="regular-text" autocomplete="new-password" />
+                        <p class="description">Must match the backend <code>WORDPRESS_SYNC_SECRET</code> value.</p>
                     </td>
                 </tr>
             </table>

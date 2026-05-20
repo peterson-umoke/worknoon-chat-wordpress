@@ -58,5 +58,27 @@ class Worknoon_Chat_CPT {
             'single' => true,
             'show_in_rest' => true,
         ]);
+
+        register_meta('post', 'backend_conversation_id', [
+            'object_subtype' => 'chat_session',
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => true,
+        ]);
+
+        register_meta('post', 'chat_session_order_id', [
+            'object_subtype' => 'chat_session',
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => true,
+        ]);
+
+        register_meta('post', 'chat_session_type', [
+            'object_subtype' => 'chat_session',
+            'type' => 'string',
+            'single' => true,
+            'show_in_rest' => true,
+            'default' => 'customer-to-agent',
+        ]);
     }
 }

@@ -2,8 +2,9 @@
     'use strict';
 
     var config = window.worknoonConfig || {};
-    var productContext = window.worknoonProductContext || null;
+    var ecommerceContext = config.context || window.worknoonProductContext || null;
     var backendUrl = config.backendUrl || 'http://localhost:3001';
+    var restUrl = config.restUrl || '/wp-json/worknoon-chat/v1';
     var token = null;
     var socket = null;
     var currentConversationId = null;
@@ -12,6 +13,8 @@
     var trigger = document.getElementById('worknoon-chat-trigger');
     var panel = document.getElementById('worknoon-chat-panel');
     var closeBtn = document.getElementById('worknoon-chat-close');
+    var contextEl = document.getElementById('worknoon-chat-context');
+    var statusEl = document.getElementById('worknoon-chat-status');
     var messagesEl = document.getElementById('worknoon-chat-messages');
     var inputEl = document.getElementById('worknoon-chat-input');
     var sendBtn = document.getElementById('worknoon-chat-send');
@@ -23,8 +26,9 @@
     trigger.addEventListener('click', function () {
         panel.style.display = 'flex';
         trigger.style.display = 'none';
+        renderContext();
         if (!token) {
-            authenticate();
+            startSession();
         }
     });
 
@@ -52,21 +56,30 @@
         }, 2000);
     });
 
-    function authenticate() {
+    function startSession() {
+        setStatus('Connecting...');
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', backendUrl + '/api/auth/login', true);
+        xhr.open('POST', restUrl + '/session', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-WP-Nonce', config.nonce || '');
         xhr.onload = function () {
-            if (xhr.status === 200) {
+            if (xhr.status >= 200 && xhr.status < 300) {
                 var data = JSON.parse(xhr.responseText);
                 token = data.token;
+                currentConversationId = data.conversationId || (data.conversation && data.conversation._id);
                 connectSocket();
-                loadOrCreateConversation();
+                loadMessages();
+                setStatus('');
+            } else {
+                setStatus(readError(xhr, 'Could not start chat.'));
             }
         };
+        xhr.onerror = function () {
+            setStatus('Could not reach chat service.');
+        };
         xhr.send(JSON.stringify({
-            emailOrUsername: config.user.email,
-            password: 'Password123!'
+            type: config.type || 'customer-to-agent',
+            context: ecommerceContext || {}
         }));
     }
 
@@ -115,50 +128,8 @@
         document.head.appendChild(s);
     }
 
-    function loadOrCreateConversation() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', backendUrl + '/api/conversations', true);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var conversations = JSON.parse(xhr.responseText);
-                if (conversations.length > 0) {
-                    currentConversationId = conversations[0]._id;
-                    loadMessages();
-                    socket.emit('joinRoom', currentConversationId);
-                    return;
-                }
-            }
-            createConversation();
-        };
-    }
-
-    function createConversation() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', backendUrl + '/api/conversations', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.onload = function () {
-            if (xhr.status === 201) {
-                var conv = JSON.parse(xhr.responseText);
-                currentConversationId = conv._id;
-                socket.emit('joinRoom', currentConversationId);
-            }
-        };
-
-        var body = { participantIds: [], type: 'general' };
-        if (productContext) {
-            body.context = {
-                productId: productContext.productId,
-                productName: productContext.productName,
-                productImage: productContext.productImage,
-                productPrice: productContext.productPrice,
-            };
-        }
-        xhr.send(JSON.stringify(body));
-    }
-
     function loadMessages() {
+        if (!currentConversationId) return;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', backendUrl + '/api/messages/' + currentConversationId, true);
         xhr.setRequestHeader('Authorization', 'Bearer ' + token);
@@ -173,6 +144,10 @@
             }
         };
         xhr.send();
+
+        if (socket) {
+            socket.emit('joinRoom', currentConversationId);
+        }
     }
 
     function sendMessage() {
@@ -209,6 +184,38 @@
 
         messagesEl.appendChild(div);
         scrollToBottom();
+    }
+
+    function renderContext() {
+        if (!contextEl || !ecommerceContext || (!ecommerceContext.productName && !ecommerceContext.orderId)) {
+            return;
+        }
+
+        var title = ecommerceContext.productName || ('Order #' + ecommerceContext.orderId);
+        var price = ecommerceContext.productPrice || '';
+        var image = ecommerceContext.productImage || '';
+
+        contextEl.innerHTML =
+            (image ? '<img src="' + escapeHtml(image) + '" alt="" />' : '') +
+            '<div><strong>' + escapeHtml(title) + '</strong>' +
+            (price ? '<span>' + escapeHtml(price) + '</span>' : '') +
+            '</div>';
+        contextEl.style.display = 'flex';
+    }
+
+    function setStatus(message) {
+        if (!statusEl) return;
+        statusEl.textContent = message || '';
+        statusEl.style.display = message ? 'block' : 'none';
+    }
+
+    function readError(xhr, fallback) {
+        try {
+            var data = JSON.parse(xhr.responseText);
+            return data.message || fallback;
+        } catch (e) {
+            return fallback;
+        }
     }
 
     function showTyping(username) {
