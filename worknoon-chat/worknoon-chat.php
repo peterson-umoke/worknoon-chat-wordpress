@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Worknoon Chat
  * Description: Real-time chat widget for eCommerce — connects WordPress users to a Node.js/Socket.IO backend.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Worknoon
  * Text Domain: worknoon-chat
  */
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WORKNOON_CHAT_VERSION', '1.0.1');
+define('WORKNOON_CHAT_VERSION', '1.0.2');
 define('WORKNOON_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WORKNOON_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WORKNOON_CHAT_BACKEND_URL', get_option('worknoon_backend_url', 'http://localhost:3001'));

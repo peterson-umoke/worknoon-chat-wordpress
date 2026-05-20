@@ -165,8 +165,15 @@
     }
 
     function appendMessage(msg) {
+        if (msg._id && messagesEl.querySelector('[data-message-id="' + cssEscape(msg._id) + '"]')) {
+            return;
+        }
+
         var div = document.createElement('div');
         div.className = 'worknoon-message ' + (msg.sender && msg.sender.username === config.user.username ? 'worknoon-message-own' : 'worknoon-message-other');
+        if (msg._id) {
+            div.setAttribute('data-message-id', msg._id);
+        }
 
         var sender = msg.sender ? msg.sender.username : 'Unknown';
         var time = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -245,5 +252,12 @@
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    function cssEscape(str) {
+        if (window.CSS && typeof window.CSS.escape === 'function') {
+            return window.CSS.escape(str);
+        }
+        return String(str).replace(/["\\]/g, '\\$&');
     }
 })();
