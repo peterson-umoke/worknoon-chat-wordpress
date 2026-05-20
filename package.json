@@ -1,0 +1,12 @@
+{
+  "name": "worknoon-wordpress-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Worknoon Real-Time Chat WordPress Plugin",
+  "scripts": {
+    "dev": "wp-playground server --mount=\"./worknoon-chat:/wordpress/wp-content/plugins/worknoon-chat\" --blueprint=\"./_blueprint/blueprint.json\" --login"
+  },
+  "devDependencies": {
+    "@wp-playground/cli": "^1.0.0"
+  }
+}
