@@ -3,7 +3,7 @@
 
     var config = window.worknoonConfig || {};
     var productContext = window.worknoonProductContext || null;
-    var backendUrl = config.backendUrl || 'http://localhost:5000';
+    var backendUrl = config.backendUrl || 'http://localhost:3001';
     var token = null;
     var socket = null;
     var currentConversationId = null;

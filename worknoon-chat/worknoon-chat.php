@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 define('WORKNOON_CHAT_VERSION', '1.0.0');
 define('WORKNOON_CHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WORKNOON_CHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('WORKNOON_CHAT_BACKEND_URL', get_option('worknoon_backend_url', 'http://localhost:5000'));
+define('WORKNOON_CHAT_BACKEND_URL', get_option('worknoon_backend_url', 'http://localhost:3001'));
 
 require_once WORKNOON_CHAT_PLUGIN_DIR . 'includes/class-chat-cpt.php';
 require_once WORKNOON_CHAT_PLUGIN_DIR . 'includes/class-chat-api.php';
@@ -34,7 +34,7 @@ $worknoon_chat_shortcode = new Worknoon_Chat_Shortcode();
 $worknoon_chat_shortcode->register();
 
 register_activation_hook(__FILE__, function () {
-    add_option('worknoon_backend_url', 'http://localhost:5000');
+    add_option('worknoon_backend_url', 'http://localhost:3001');
     flush_rewrite_rules();
 });
 
@@ -58,7 +58,7 @@ function worknoon_chat_settings_page() {
         echo '<div class="notice notice-success is-dismissible"><p>Settings saved.</p></div>';
     }
 
-    $backend_url = get_option('worknoon_backend_url', 'http://localhost:5000');
+    $backend_url = get_option('worknoon_backend_url', 'http://localhost:3001');
     ?>
     <div class="wrap">
         <h1>Worknoon Chat Settings</h1>
@@ -70,7 +70,7 @@ function worknoon_chat_settings_page() {
                     <td>
                         <input type="url" id="backend_url" name="worknoon_backend_url"
                                value="<?php echo esc_attr($backend_url); ?>"
-                               class="regular-text" placeholder="http://localhost:5000" />
+                               class="regular-text" placeholder="http://localhost:3001" />
                         <p class="description">URL of your Node.js/Socket.IO backend server.</p>
                     </td>
                 </tr>
