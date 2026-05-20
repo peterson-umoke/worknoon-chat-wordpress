@@ -86,4 +86,11 @@ Both endpoints require the user to be logged into WordPress.
 
 ## Demo
 
-[Demo video walkthrough](#) — *Add your Loom/YouTube link here*
+> **Video walkthrough coming soon.** Record a 5-10 minute Loom/YouTube video covering:
+> 1. Running `npm run dev` to start WordPress Playground
+> 2. Configuring backend URL in WP Admin → Settings → Worknoon Chat
+> 3. Placing `[worknoon_chat]` shortcode on a product page
+> 4. Live chat session between a WooCommerce customer and an agent
+> 5. Elementor widget placement
+>
+> Replace this block with: `[📺 Demo Video](https://your-link-here)`
