@@ -54,6 +54,71 @@ add_action('admin_menu', function () {
     );
 });
 
+add_action('admin_enqueue_scripts', function ($hook_suffix) {
+    if ($hook_suffix !== 'settings_page_worknoon-chat') {
+        return;
+    }
+
+    wp_enqueue_style('dashicons');
+    wp_enqueue_script('jquery');
+
+    $css = '
+        .worknoon-secret-field {
+            align-items: center;
+            display: flex;
+            gap: 6px;
+        }
+
+        .worknoon-secret-toggle {
+            align-items: center;
+            display: inline-flex;
+            justify-content: center;
+            min-width: 32px;
+            padding: 0 7px;
+        }
+
+        .worknoon-secret-toggle .dashicons {
+            font-size: 18px;
+            height: 18px;
+            line-height: 18px;
+            width: 18px;
+        }
+    ';
+
+    wp_add_inline_style('dashicons', $css);
+
+    $script = '
+        document.addEventListener("DOMContentLoaded", function () {
+            var input = document.getElementById("sync_secret");
+            var toggle = document.querySelector("[data-worknoon-secret-toggle]");
+
+            if (!input || !toggle) {
+                return;
+            }
+
+            var icon = toggle.querySelector(".dashicons");
+            var showLabel = toggle.getAttribute("data-show-label");
+            var hideLabel = toggle.getAttribute("data-hide-label");
+
+            toggle.addEventListener("click", function () {
+                var shouldShow = input.type === "password";
+
+                input.type = shouldShow ? "text" : "password";
+                toggle.setAttribute("aria-pressed", shouldShow ? "true" : "false");
+                toggle.setAttribute("aria-label", shouldShow ? hideLabel : showLabel);
+                toggle.setAttribute("title", shouldShow ? hideLabel : showLabel);
+
+                if (icon) {
+                    icon.classList.toggle("dashicons-visibility", !shouldShow);
+                    icon.classList.toggle("dashicons-hidden", shouldShow);
+                }
+            });
+        });
+    ';
+
+    wp_add_inline_script('jquery', $script);
+});
+
 function worknoon_chat_settings_page() {
     if (isset($_POST['worknoon_backend_url']) && check_admin_referer('worknoon_chat_settings')) {
         update_option('worknoon_backend_url', esc_url_raw(wp_unslash($_POST['worknoon_backend_url'])));
@@ -81,9 +146,21 @@ function worknoon_chat_settings_page() {
                 <tr>
                     <th scope="row"><label for="sync_secret">Sync Secret</label></th>
                     <td>
-                        <input type="password" id="sync_secret" name="worknoon_sync_secret"
-                               value="<?php echo esc_attr($sync_secret); ?>"
-                               class="regular-text" autocomplete="new-password" />
+                        <span class="worknoon-secret-field">
+                            <input type="password" id="sync_secret" name="worknoon_sync_secret"
+                                   value="<?php echo esc_attr($sync_secret); ?>"
+                                   class="regular-text" autocomplete="new-password" />
+                            <button type="button"
+                                    class="button worknoon-secret-toggle"
+                                    data-worknoon-secret-toggle
+                                    data-show-label="<?php echo esc_attr__('Show sync secret', 'worknoon-chat'); ?>"
+                                    data-hide-label="<?php echo esc_attr__('Hide sync secret', 'worknoon-chat'); ?>"
+                                    aria-label="<?php echo esc_attr__('Show sync secret', 'worknoon-chat'); ?>"
+                                    aria-pressed="false"
+                                    title="<?php echo esc_attr__('Show sync secret', 'worknoon-chat'); ?>">
+                                <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                            </button>
+                        </span>
                         <p class="description">Must match the backend <code>WORDPRESS_SYNC_SECRET</code> value.</p>
                     </td>
                 </tr>
