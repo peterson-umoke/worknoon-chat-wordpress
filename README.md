@@ -1,96 +1,98 @@
 # Worknoon Chat WordPress Plugin
 
-WordPress plugin that embeds the Worknoon real-time chat widget into any WooCommerce store.
+WordPress plugin that embeds Worknoon real-time chat into WooCommerce pages.
 
-## Technologies
+## What It Does
 
-- **PHP 8+** — WordPress plugin development
-- **WordPress REST API** — User sync with the Node.js backend
-- **WooCommerce** — Product and order context integration
-- **Socket.IO Client (CDN)** — Real-time messaging in the browser
-- **Elementor** — Drag-and-drop widget support
-- **WordPress Playground** — Zero-dependency local development
+- Provides a floating widget via shortcode
+- Creates/uses backend chat sessions through WP REST
+- Syncs logged-in WP users to backend (`/api/auth/wordpress-sync`)
+- Maps WP roles to backend roles
+- Captures product/order context for support conversations
+- Stores chat sessions as a custom post type (`chat_session`)
 
-## Features
+## Plugin Components
 
-- Floating chat widget with `[worknoon_chat]` shortcode
-- Elementor widget for visual placement
-- Automatic WooCommerce product context (image, name, price)
-- Custom Post Type: `chat_session` for tracking conversations
-- REST API endpoints for user sync and JWT token retrieval
-- WordPress role mapping (administrator → admin, shop_manager → merchant)
-- Configurable backend URL via WP Admin settings page
-- Responsive widget with mobile support
-
-## Project Structure
-
-```
+```text
 worknoon-chat/
-├── worknoon-chat.php          # Main plugin file & settings page
-├── includes/
-│   ├── class-chat-cpt.php     # Chat Session CPT registration
-│   ├── class-chat-api.php     # REST API sync endpoints
-│   ├── class-chat-woocommerce.php  # Product/order context
-│   ├── class-chat-shortcode.php    # Shortcode & asset enqueue
-│   └── class-elementor-widget.php  # Elementor widget
-└── assets/
-    ├── chat-widget.js         # Frontend Socket.IO client
-    └── chat-widget.css        # Widget styles
+    worknoon-chat.php
+    includes/
+        class-chat-cpt.php
+        class-chat-api.php
+        class-chat-woocommerce.php
+        class-chat-shortcode.php
+        class-elementor-widget.php
+    assets/
+        chat-widget.js
+        chat-widget.css
 ```
 
-## Setup
+## Settings (WP Admin)
 
-### Local Development (WordPress Playground)
+WP Admin -> Settings -> Worknoon Chat
+
+- Backend URL (`worknoon_backend_url`)
+- Sync Secret (`worknoon_sync_secret`)
+
+The sync secret must match backend `WORDPRESS_SYNC_SECRET`.
+
+## WordPress REST Endpoints
+
+Namespace: `worknoon-chat/v1`
+
+- `POST /sync-user`
+- `GET /chat-token`
+- `POST /session`
+
+All require logged-in WordPress user.
+
+## Shortcode
+
+```text
+[worknoon_chat]
+```
+
+Supported attributes:
+
+- `label` (default: `Chat with us`)
+- `position` (default: `bottom-right`)
+- `type` (`customer-to-agent`, `customer-to-designer`, `customer-to-merchant`, `general`)
+
+Example:
+
+```text
+[worknoon_chat label="Need help?" type="customer-to-merchant"]
+```
+
+## WooCommerce Context
+
+When available, widget payload includes:
+
+- `productId`
+- `productName`
+- `productImage`
+- `productPrice`
+- `orderId`
+
+Context is captured from product page, `product_id` query param, or `order_id` query param.
+
+## Local Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Start WordPress with WooCommerce pre-installed
 npm run dev
 ```
 
-This boots a virtual WordPress instance with:
-- WooCommerce installed and activated
-- The plugin mounted and active
-- Auto-login as administrator
+This starts WordPress Playground and mounts plugin source into the Playground WP instance.
 
-### Manual Installation
+## Backend Dependency
 
-1. Upload the `worknoon-chat` folder to `/wp-content/plugins/`
-2. Activate via WP Admin → Plugins
-3. Go to Settings → Worknoon Chat to configure the backend URL
+This plugin expects the Node backend to be running and reachable from WordPress.
 
-### Usage
+Minimum backend support required:
 
-Place the shortcode on any page:
+- `POST /api/auth/wordpress-sync`
+- `POST /api/conversations`
+- `GET /api/messages/:conversationId`
+- Socket.IO endpoint for realtime messaging
 
-```
-[worknoon_chat label="Chat with us" position="bottom-right"]
-```
-
-Or use the **Worknoon Chat** Elementor widget for drag-and-drop placement.
-
-## REST API Endpoints
-
-- `POST /wp-json/worknoon-chat/v1/sync-user` — Register logged-in WP user in the Node.js backend
-- `GET /wp-json/worknoon-chat/v1/chat-token` — Get JWT token for Socket.IO authentication
-
-Both endpoints require the user to be logged into WordPress.
-
-## Challenges
-
-- **Cross-platform auth** — WordPress users are automatically registered in the Express/MongoDB backend via REST API sync, then authenticated with JWT for Socket.IO.
-- **WooCommerce context capture** — Product details (image, name, price) are captured on product pages and passed to the chat widget via `wp_localize_script`.
-- **Elementor integration** — Custom widget category and controls for label/position configuration, delegating to the shortcode for rendering.
-
-## Demo
-
-> **Video walkthrough coming soon.** Record a 5-10 minute Loom/YouTube video covering:
-> 1. Running `npm run dev` to start WordPress Playground
-> 2. Configuring backend URL in WP Admin → Settings → Worknoon Chat
-> 3. Placing `[worknoon_chat]` shortcode on a product page
-> 4. Live chat session between a WooCommerce customer and an agent
-> 5. Elementor widget placement
->
-> Replace this block with: `[📺 Demo Video](https://your-link-here)`
